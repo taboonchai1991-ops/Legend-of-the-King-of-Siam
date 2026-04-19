@@ -1,0 +1,125 @@
+:root {
+  --bg-color: rgba(0,0,0,0.5);
+  --text-color: #ffffff;
+  --button-bg: #ffcc00;
+  --button-text: #000000;
+  --link-color: #ffcc00;
+}
+
+/* ------------------ BODY ------------------ */
+body {
+  margin: 0;
+  font-family: 'Kanit', sans-serif;
+  color: var(--text-color);
+  background: url('https://upload.wikimedia.org/wikipedia/commons/c/ce/Ayutthaya_3_pagodas.jpg')
+              no-repeat center center fixed;
+  background-size: cover;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* ------------------ LIGHT MODE ------------------ */
+body.light {
+  --bg-color: rgba(255,255,255,0.7);
+  --text-color: #000000;
+  --button-bg: #000000;
+  --button-text: #ffcc00;
+  --link-color: #000000;
+}
+
+/* ------------------ CONTAINER ------------------ */
+.container {
+  padding: 50px 20px;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+}
+
+/* ------------------ HEADINGS ------------------ */
+h1, h2 {
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+  margin-bottom: 40px;
+}
+
+h2 {
+  margin: 40px 0 20px;
+}
+
+/* ------------------ GALLERY ------------------ */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* ------------------ CARD ------------------ */
+.card {
+  background-color: rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+  background-color: rgba(255,255,255,0.2);
+  transform: translateY(-3px);
+}
+
+.card a {
+  color: var(--link-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ------------------ BUTTON ------------------ */
+a.button {
+  display: inline-block;
+  margin: 20px;
+  padding: 15px 30px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: opacity 0.3s ease;
+}
+
+a.button:hover {
+  opacity: 0.85;
+}
+
+/* ------------------ TOGGLE BUTTON ------------------ */
+.toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.toggle-btn:hover {
+  opacity: 0.85;
+}
+
+/* ------------------ VOICE BUTTON (เสริม) ------------------ */
+.voice-btn {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 30px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
