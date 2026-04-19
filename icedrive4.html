@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>พระโบราณ - พระลึกลับแดนสยาม</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .info-note {
+        text-align: center;
+        background: rgba(0,0,0,0.3);
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 0.9em;
+    }
+    .category-badge {
+        display: inline-block;
+        background: #8B4513;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.7em;
+        margin-bottom: 8px;
+    }
+    .search-wrapper {
+        position: relative;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .search-input {
+        width: 100%;
+        padding: 15px 50px 15px 20px;
+        font-size: 1.1em;
+        border-radius: 50px;
+        border: 1px solid var(--border-color);
+        background: var(--input-bg);
+        color: var(--text-color);
+        font-family: 'Kanit', sans-serif;
+    }
+    .voice-btn-small {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        font-size: 1.5em;
+        cursor: pointer;
+        color: var(--button-bg);
+    }
+  </style>
+</head>
+
+<body>
+
+<button class="toggle-btn" onclick="toggleMode()">🌙 / ☀️</button>
+
+<div class="container">
+  <h2>🏺 พระเครื่องโบราณอายุหลายร้อยปี</h2>
+  <div class="info-note">
+    💡 แสดงพระทั้งหมดจากหมวด "พระโบราณ" <br>
+    ✨ พระที่เพิ่มจากหน้าแรกจะแสดงที่นี่โดยอัตโนมัติ
+  </div>
+
+  <div class="search-wrapper">
+    <input type="text" class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อพระโบราณ..." onkeyup="filterGallery()">
+    <button class="voice-btn-small" onclick="startVoiceSearch()">🎤</button>
+  </div>
+
+  <div class="gallery" id="galleryContainer"></div>
+
+  <div id="searchStatus" class="ai-box" style="margin-top:20px;"></div>
+
+  <div style="text-align:center; margin-top: 40px;">
+    <a href="index.html" class="button">← กลับสู่หน้าแรก</a>
+  </div>
+</div>
+
+<script src="js/shared-data.js"></script>
+<script src="js/voice.js"></script>
+
+<script>
+// พระเริ่มต้นสำหรับหมวดพระโบราณ
+const DEFAULT_AMULETS = [
+    { name: "หลวงพ่อแก้ว พิมพ์ปั่น", img: "https://via.placeholder.com/300x200?text=หลวงพ่อแก้ว", url: "https://icedrive.net/s/kB2a6552k1QyT4bzhaGYtB1F5fT7", category: "พระโบราณ" },
+    { name: "หลวงพ่อวงษ์ วัดทุ่งผักกูด", img: "https://via.placeholder.com/300x200?text=หลวงพ่อวงษ์", url: "https://icedrive.net/s/V5CADRfZGxT8CDitXuif7TiGRvzi", category: "พระโบราณ" }
+];
+
+function initDefaultData() {
+    const amulets = loadSharedAmulets();
+    const existingCount = amulets.filter(a => a.category === 'พระโบราณ').length;
+    if (existingCount === 0) {
+        DEFAULT_AMULETS.forEach(amulet => {
+            addSharedAmulet(amulet.name, amulet.img, amulet.url, amulet.category);
+        });
+        console.log("✅ เพิ่มข้อมูลพระโบราณเริ่มต้นเรียบร้อย");
+    }
+}
+
+function loadAmulets() {
+    const amulets = loadSharedAmulets();
+    const filtered = amulets.filter(a => a.category === 'พระโบราณ');
+    const container = document.getElementById('galleryContainer');
+    
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="no-results">
+                ❌ ไม่พบพระในหมวดพระโบราณ<br>
+                📝 ไปที่ <a href="index.html" style="color: var(--link-color);">หน้าแรก</a> 
+                แล้วเพิ่มพระในหมวด "พระโบราณ"
+            </div>
+        `;
+        updateSearchStatus(0);
+        return;
+    }
+    
+    filtered.forEach(amulet => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('data-name', amulet.name);
+        card.innerHTML = `
+            <span class="category-badge">🏺 ${amulet.category}</span>
+            <img src="${amulet.img}" onerror="this.src='https://via.placeholder.com/300x200?text=ไม่มีรูป'">
+            <a href="${amulet.url}" target="_blank">${amulet.name}</a>
+        `;
+        container.appendChild(card);
+    });
+    
+    updateSearchStatus(filtered.length);
+}
+
+function filterGallery() {
+    const keyword = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+    const cards = document.querySelectorAll('#galleryContainer .card');
+    let foundCount = 0;
+    
+    cards.forEach(card => {
+        const name = card.getAttribute('data-name')?.toLowerCase() || '';
+        if (keyword === '' || name.includes(keyword)) {
+            card.style.display = '';
+            foundCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    updateSearchStatus(foundCount, keyword);
+}
+
+function updateSearchStatus(count, keyword = '') {
+    const statusDiv = document.getElementById('searchStatus');
+    if (!statusDiv) return;
+    
+    if (keyword === '') {
+        statusDiv.innerHTML = `<span>✨ พบพระโบราณทั้งหมด ${count} รายการ</span>`;
+    } else if (count === 0) {
+        statusDiv.innerHTML = `<span>🔍 ไม่พบ "${keyword}" ในหมวดพระโบราณ</span>`;
+        if (typeof speak === 'function') speak(`ไม่พบ ${keyword}`);
+    } else {
+        statusDiv.innerHTML = `<span>🔍 พบ ${count} รายการ สำหรับ "${keyword}"</span>`;
+    }
+}
+
+function startVoiceSearch() {
+    if (typeof startVoice === 'function') {
+        startVoice(function(text) {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = text;
+                filterGallery();
+            }
+        });
+    } else {
+        alert('ระบบเสียงกำลังโหลด');
+    }
+}
+
+function toggleMode() {
+    document.body.classList.toggle('light');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initDefaultData();
+    loadAmulets();
+    
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') filterGallery();
+        });
+    }
+});
+
+window.addEventListener('pageshow', () => {
+    loadAmulets();
+    filterGallery();
+});
+</script>
+</body>
+</html>
